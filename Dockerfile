@@ -1,12 +1,10 @@
 FROM archlinux
 MAINTAINER obed.n.munoz@gmail.com
 
-
 # Common Dev Tools
-RUN pacman -Syu emacs-nox tmux git --noconfirm
+RUN pacman -Syu emacs-nox tmux git zsh wget sudo base-devel --noconfirm
 
 # Yaourt
-RUN pacman --noconfirm -S sudo base-devel
 RUN chmod 640 /etc/sudoers && echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && chmod 440 /etc/sudoers && useradd -m -p123123 -G wheel yaourt
 RUN sudo -u yaourt rm -rf /tmp/package-query && \
     sudo -u yaourt rm -rf /tmp/yaourt && \
@@ -21,3 +19,13 @@ RUN sudo -u yaourt rm -rf /tmp/package-query && \
     cd .. && \
     echo 'EXPORT=2' >> /etc/yaourtrc && \
     sudo -u yaourt yaourt --version
+
+# Shell
+RUN sh -c "$(curl https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" --unattended
+CMD ["/usr/bin/zsh"]
+
+# dotfiles
+RUN git clone https://github.com/obedmr/dotfiles.git $HOME/dotfiles ; \
+    echo "source $HOME/.extras" >> $HOME/.zshrc;  \
+    ln -s dotfiles/tmux/.tmux.conf $HOME/; \
+    echo "export EDITOR=emacs" >> $HOME/.extras
